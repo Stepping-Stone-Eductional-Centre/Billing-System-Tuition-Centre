@@ -85,7 +85,11 @@
   .receipt-wrap{position:relative}
   .receipt-viewport{overflow:hidden;position:relative}
   .receipt{
-    width:760px; /* fixed design width — scaled to fit any screen */
+    width:210mm;
+    max-width:210mm;
+    min-height:297mm;
+    margin:auto;
+    box-sizing:border-box; /* fixed design width — scaled to fit any screen */
     background:var(--paper);padding:34px 38px 26px;position:relative;overflow:hidden;
     box-shadow:0 24px 60px rgba(0,0,0,.45);
     border:1px solid #d9d2c2;
