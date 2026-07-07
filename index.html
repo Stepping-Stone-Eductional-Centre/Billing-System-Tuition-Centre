@@ -557,17 +557,34 @@
     // so screen scaling (mobile/laptop) can never crop or shift the PDF
     const src=$('receipt');
     const holder=document.createElement('div');
-    holder.style.cssText='position:absolute;left:-10000px;top:0;width:'+DESIGN_W+'px;background:#fff;';
+    // IMPORTANT: hide the clone ABOVE the page (top:-12000px), never to the left.
+    // Mobile browsers clip anything outside the horizontal viewport, which was
+    // cutting the downloaded PDF in half on phones.
+    holder.style.cssText='position:absolute;left:0;top:-12000px;width:'+DESIGN_W+'px;background:#fff;overflow:visible;z-index:-1;';
     const clone=src.cloneNode(true);
     clone.style.transform='none';
     clone.style.boxShadow='none';
+    clone.style.margin='0';
+    clone.style.width=DESIGN_W+'px';
     clone.removeAttribute('hidden');
     holder.appendChild(clone);
     document.body.appendChild(holder);
-    await new Promise(r=>setTimeout(r,60)); // let images/fonts settle
+    try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+    await new Promise(r=>setTimeout(r,120)); // let images/fonts settle
     let canvas;
     try{
-      canvas=await html2canvas(clone,{scale:2.4,useCORS:true,backgroundColor:'#ffffff',width:DESIGN_W,windowWidth:DESIGN_W+80});
+      const fullH=Math.ceil(clone.scrollHeight);
+      canvas=await html2canvas(clone,{
+        scale:2.4,
+        useCORS:true,
+        backgroundColor:'#ffffff',
+        width:DESIGN_W,
+        height:fullH,
+        windowWidth:DESIGN_W+80,
+        windowHeight:fullH+80,
+        scrollX:0,
+        scrollY:0
+      });
     }finally{
       document.body.removeChild(holder);
     }
